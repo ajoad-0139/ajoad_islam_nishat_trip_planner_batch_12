@@ -11,9 +11,9 @@ class StrictSchema(BaseModel):
 
 class TripCreate(StrictSchema):
     destination: str = Field(min_length=1, max_length=200)
-    start_date: date
-    end_date: date
-    budget: Decimal = Field(gt=0, max_digits=12, decimal_places=2)   
+    start_date: date = Field(strict=False)
+    end_date: date = Field(strict=False)
+    budget: Decimal = Field(gt=0, max_digits=12, decimal_places=2, strict=False)   
     max_travelers: int = Field(gt=0)                                 
 
     @model_validator(mode="after")

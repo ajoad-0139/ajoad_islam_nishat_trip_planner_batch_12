@@ -1,7 +1,7 @@
 from flask import Flask
 from app_logging import setup_logging
 from app.routes import setup_blueprints
-from setup_sqpalchemy import setup_sqlalchemy
+from setup_sqlalchemy import setup_sqlalchemy
 from app.errors import setup_error_handler
 
 def create_app (Config) :

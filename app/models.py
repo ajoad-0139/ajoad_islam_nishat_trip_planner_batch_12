@@ -1,6 +1,6 @@
 from decimal import Decimal
 
-from setup_sqpalchemy import sqlalchemy_db as db 
+from setup_sqlalchemy import sqlalchemy_db as db 
 
 trip_traveler = db.Table(
     "trip_traveler",
