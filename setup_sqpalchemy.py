@@ -1,5 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
-from exceptions import OperationalException
+from app.errors import OperationalException
 
 sqlalchemy_db = SQLAlchemy()
 
