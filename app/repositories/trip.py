@@ -2,7 +2,7 @@ import logging
 from sqlalchemy.exc import SQLAlchemyError
 from app.errors import ApiException, TripNotFoundException
 from setup_sqlalchemy import sqlalchemy_db as db
-from app.models import Trip
+from app.models import Trip , Traveler , trip_traveler
 
 
 logger = logging.getLogger(__name__)
@@ -34,7 +34,7 @@ class TripRepository:
         except SQLAlchemyError as e:
                     logger.error(e)
                     db.session.rollback()
-                    raise ApiException("Error creating A trip")
+                    raise ApiException("Error getting A trip")
 
     def update(self, trip_id, data):
         trip = self.get(trip_id)
@@ -60,3 +60,32 @@ class TripRepository:
             logger.error(e)
             db.session.rollback()
             raise ApiException("Error deleting a trip")
+
+    def get_traveler_by_email(self, email):
+        try:
+            stmt = db.select(Traveler).filter_by(email=email)
+            return db.session.execute(stmt).scalar_one_or_none()
+        except SQLAlchemyError as e:
+            logger.error(e)
+            db.session.rollback()
+            raise ApiException("Error getting a traveler")
+
+    def create_traveler(self, data, email):
+        try:
+            traveler = Traveler(name=data.name, email=email)
+            db.session.add(traveler)
+            db.session.commit()
+            return traveler
+        except SQLAlchemyError as e:
+            logger.error(e)
+            db.session.rollback()
+            raise ApiException("Error creating a traveler")
+
+    def add_traveler_to_trip(self, trip, traveler):
+        try:
+            trip.travelers.append(traveler)
+            db.session.commit()
+        except SQLAlchemyError as e:
+            logger.error(e)
+            db.session.rollback()
+            raise ApiException("Error adding traveler to trip")

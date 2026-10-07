@@ -55,6 +55,32 @@ class InvalidTripUpdateException(ValidationException):
     code = "INVALID_TRIP_UPDATE"
     default_message = "The trip update is not allowed."
 
+class TravelerCreationException(ApiException) :
+    def __init__(self, code:str="TRAVELER_CREATION_ERROR", default_message:str="traveler creation errror message", status_code = 409):
+        self.code = code, self.default_message=default_message
+
+# errors.py
+class ConflictException(ApiException):
+    code = "CONFLICT"
+    status_code = 409
+    default_message = "The request conflicts with the current state."
+
+class DuplicateTravelerException(ConflictException):
+    code = "DUPLICATE_TRAVELER"
+    default_message = "The traveler is already part of this trip."
+
+class TripFullException(ConflictException):
+    code = "TRIP_FULL"
+    default_message = "The trip has reached its maximum traveler capacity."
+
+class TripNotPlannedException(ConflictException):
+    code = "TRIP_NOT_PLANNED"
+    default_message = "Travelers can only be added while the trip is PLANNED."
+
+class TravelerOverlapException(ConflictException):
+    code = "TRAVELER_TRIP_OVERLAP"
+    default_message = "The traveler already has a trip overlapping these dates."
+
 # error response formater
 def error_response(error_title, error_message, status_code: int = 400):
 

@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request
-from app.schemas import TripCreate, TripUpdate
+from app.schemas import TripCreate, TripUpdate, TravelerCreate
 from app.services.trip import TripService
 from app.repositories.trip import TripRepository
 from app.errors import InvalidJsonException
@@ -9,7 +9,7 @@ blueprint = Blueprint("trips", __name__)
 trip_repository = TripRepository()
 trip_service = TripService(trip_repository)
 
-
+#basic trip crud routes 
 @blueprint.get("/")
 def get_all_trips():
     trips = trip_service.get_all_trips()
@@ -38,7 +38,16 @@ def update_a_trip(trip_id):
     updated_trip = trip_service.update_a_trip(validated, trip, trip_id)
     return jsonify(updated_trip.to_dict()), 200
 
-@blueprint.delete("<int:trip_id>")
+@blueprint.delete("/<int:trip_id>")
 def delete_a_trip(trip_id):
     trip_service.delete_a_trip(trip_id=trip_id)
     return jsonify({"message": "Deleted successfully"}), 200
+
+
+
+#trips-travelers routes 
+@blueprint.post("/<int:trip_id>/travelers")
+def create_a_trip_traveler(trip_id) :
+    validated_traveler = TravelerCreate.model_validate_json(request.get_data())
+    trip_traveler = trip_service.create_a_trip_traveler(trip_id=trip_id, data=validated_traveler)
+    return jsonify(trip_traveler), 201
