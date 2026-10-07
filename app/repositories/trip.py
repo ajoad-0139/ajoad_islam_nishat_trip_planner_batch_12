@@ -69,6 +69,15 @@ class TripRepository:
             logger.error(e)
             db.session.rollback()
             raise ApiException("Error getting a traveler")
+        
+    def get_traveler_by_id(self, traveler_id) :
+        try:
+            stmt = db.select(Traveler).filter_by(id=traveler_id)
+            return db.session.execute(stmt).scalar_one_or_none() 
+        except SQLAlchemyError as e:
+            logger.error(e)
+            db.session.rollback()
+            raise ApiException("Error deleting traveler to trip")
 
     def create_traveler(self, data, email):
         try:
@@ -89,3 +98,12 @@ class TripRepository:
             logger.error(e)
             db.session.rollback()
             raise ApiException("Error adding traveler to trip")
+
+    def remove_a_traveler_from_a_trip(self, trip, traveler) :
+        try :
+            trip.travelers.remove(traveler)
+            db.session.commit() 
+        except SQLAlchemyError as e:
+            logger.error(e)
+            db.session.rollback()
+            raise ApiException("Error deleting traveler to trip")

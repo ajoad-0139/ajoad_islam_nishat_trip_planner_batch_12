@@ -2,7 +2,7 @@ from flask import Blueprint, jsonify, request
 from app.schemas import TripCreate, TripUpdate, TravelerCreate
 from app.services.trip import TripService
 from app.repositories.trip import TripRepository
-from app.errors import InvalidJsonException
+from app.errors import InvalidJsonException , InvalidTripUpdateException
 
 blueprint = Blueprint("trips", __name__) 
 
@@ -32,6 +32,8 @@ def update_a_trip(trip_id):
     if not isinstance(update_data, dict):
         raise InvalidJsonException("Body must be a JSON object.")
     trip = trip_service.get_a_trip(trip_id)
+    if trip.status  in ("COMPLETED" , "CANCELLED"):
+        raise InvalidTripUpdateException("this trip is already completed or canceled, can't update")
     merged = {**trip.to_dict(), **update_data}
     merged.pop("id", None)
     validated = TripUpdate.model_validate(merged)
@@ -41,7 +43,7 @@ def update_a_trip(trip_id):
 @blueprint.delete("/<int:trip_id>")
 def delete_a_trip(trip_id):
     trip_service.delete_a_trip(trip_id=trip_id)
-    return jsonify({"message": "Deleted successfully"}), 200
+    return jsonify({"message": "Trip deleted successfully"}), 200
 
 
 
@@ -51,3 +53,8 @@ def create_a_trip_traveler(trip_id) :
     validated_traveler = TravelerCreate.model_validate_json(request.get_data())
     trip_traveler = trip_service.create_a_trip_traveler(trip_id=trip_id, data=validated_traveler)
     return jsonify(trip_traveler), 201
+
+@blueprint.delete("/<int:trip_id>/travelers/<int:traveler_id>/")
+def remove_a_traveler_from_a_trip(trip_id, traveler_id) :
+    trip_service.remove_a_traveler_from_a_trip(trip_id=trip_id, traveler_id=traveler_id)
+    return jsonify({"message": "Traveler deleted successfully"}), 200

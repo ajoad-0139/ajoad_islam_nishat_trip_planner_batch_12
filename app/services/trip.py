@@ -1,5 +1,6 @@
 from app.repositories.trip import TripRepository
-from app.errors import TripNotFoundException, InvalidTripUpdateException, TripNotPlannedException, TripFullException , DuplicateTravelerException, TravelerOverlapException
+from app.errors import TripNotFoundException, TravelerNotFoundException , InvalidTripUpdateException , TripLockedException
+from app.errors import TripNotPlannedException, TripFullException , DuplicateTravelerException, TravelerOverlapException, TravelerNotInTripException
 from app.utils import has_overlapping_trip
 
 class TripService:
@@ -51,4 +52,16 @@ class TripService:
         self.trip_repository.add_traveler_to_trip(trip, traveler)
         return {"trip": {**trip.to_dict(), **trip.to_summary_dict()}, "traveler": traveler.to_dict()}
 
+    def remove_a_traveler_from_a_trip(self, trip_id, traveler_id) :
+        trip = self.trip_repository.get(trip_id=trip_id)
+        if trip is None:
+            raise TripNotFoundException()
+        if trip.status in ("COMPLETED", "CANCELLED") :
+            raise TripLockedException()
+        traveler = self.trip_repository.get_traveler_by_id(traveler_id=traveler_id)
+        if traveler is None:
+            raise TravelerNotFoundException()
+        if traveler not in trip.travelers:
+            raise TravelerNotInTripException()
+        return self.trip_repository.remove_a_traveler_from_a_trip(trip=trip, traveler=traveler)
         

@@ -47,6 +47,18 @@ class TripNotFoundException(NotFoundException):
     code = "TRIP_NOT_FOUND"
     default_message = "Trip not found."
 
+class TravelerNotFoundException(NotFoundException):
+    code = "TRAVELER_NOT_FOUND"
+    default_message = "Traveler not found."
+
+class TripLockedException(ApiException):
+    code = "TRIP_LOCKED"
+    default_message = "Completed or cancelled trips cannot be modified."
+
+class TravelerNotInTripException(NotFoundException):
+    code = "TRAVELER_NOT_IN_TRIP"
+    default_message = "The traveler is not part of this trip."
+
 class CustomException(Exception) :
     def __init__(self, code:str="custom error", default_message:str="custom error message", status_code = 400):
         self.code = code, self.default_message=default_message
@@ -59,7 +71,6 @@ class TravelerCreationException(ApiException) :
     def __init__(self, code:str="TRAVELER_CREATION_ERROR", default_message:str="traveler creation errror message", status_code = 409):
         self.code = code, self.default_message=default_message
 
-# errors.py
 class ConflictException(ApiException):
     code = "CONFLICT"
     status_code = 409
