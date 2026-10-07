@@ -118,3 +118,13 @@ class TripRepository:
             logger.error(e)
             db.session.rollback()
             raise ApiException("Error creating a expense to a trip")
+
+    def update_trip_status(self, trip, status) :
+        try:
+            trip.status=status
+            db.session.commit()
+            return trip
+        except SQLAlchemyError as e:
+            logger.error(e)
+            db.session.rollback()
+            raise ApiException("Error updating status of the trip") 

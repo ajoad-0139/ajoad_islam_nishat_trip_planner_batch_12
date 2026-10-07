@@ -80,6 +80,10 @@ class TripNotAcceptingExpensesException(ConflictException):
     code = "TRIP_NOT_ACCEPTING_EXPENSES"
     default_message = "Expenses can only be added while the trip is PLANNED or ONGOING."
 
+class NotAValidStatusException(ConflictException) :
+    code = "INVALID_STATUS"
+    default_message = "Invalid status update request, please provide a valid status"
+
 class BudgetExceededException(ConflictException):
     code = "BUDGET_EXCEEDED"
     default_message = "The expense exceeds the remaining trip budget."

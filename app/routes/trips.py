@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request
-from app.schemas import TripCreate, TripUpdate, TravelerCreate, ExpenseCreate
+from app.schemas import TripCreate, TripUpdate, TravelerCreate, ExpenseCreate, StatusUpdate
 from app.services.trip import TripService
 from app.repositories.trip import TripRepository
 from app.errors import InvalidJsonException , InvalidTripUpdateException, TripNotFoundException
@@ -75,3 +75,11 @@ def create_a_expense_to_a_trip(trip_id):
     validated_expense = ExpenseCreate.model_validate_json(request.get_data())
     expense = trip_service.create_a_expense_to_a_trip(trip_id, validated_expense)
     return jsonify(expense.to_dict()), 201
+
+
+#trip-status route
+@blueprint.patch("/<int:trip_id>/status")
+def change_trip_status(trip_id):
+    validated_status = StatusUpdate.model_validate_json(request.get_data())
+    updated_trip = trip_service.update_trip_status(trip_id, validated_status)
+    return jsonify(updated_trip.to_dict()),200
