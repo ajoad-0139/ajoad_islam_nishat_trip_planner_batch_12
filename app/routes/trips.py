@@ -1,7 +1,8 @@
 from flask import Blueprint, jsonify, request
-from app.schemas import TripCreate
+from app.schemas import TripCreate, TripUpdate
 from app.services.trip import TripService
 from app.repositories.trip import TripRepository
+from app.errors import InvalidJsonException
 
 blueprint = Blueprint("trips", __name__) 
 
@@ -25,10 +26,19 @@ def get_a_trip(trip_id):
     trip = trip_service.get_a_trip(trip_id)
     return jsonify(trip.to_dict()), 200
 
-# @blueprint.put("/<int:trip_id>")
-# def update_a_trip():
-#     return None
+@blueprint.put("/<int:trip_id>")
+def update_a_trip(trip_id):
+    update_data = request.get_json(silent=True)
+    if not isinstance(update_data, dict):
+        raise InvalidJsonException("Body must be a JSON object.")
+    trip = trip_service.get_a_trip(trip_id)
+    merged = {**trip.to_dict(), **update_data}
+    merged.pop("id", None)
+    validated = TripUpdate.model_validate(merged)
+    updated_trip = trip_service.update_a_trip(validated, trip, trip_id)
+    return jsonify(updated_trip.to_dict()), 200
 
-# @blueprint.delete("<int:trip_id>")
-# def delete_a_trip():
-#     return None
+@blueprint.delete("<int:trip_id>")
+def delete_a_trip(trip_id):
+    trip_service.delete_a_trip(trip_id=trip_id)
+    return jsonify({"message": "Deleted successfully"}), 200

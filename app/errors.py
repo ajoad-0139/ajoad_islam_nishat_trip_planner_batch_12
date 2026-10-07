@@ -51,7 +51,9 @@ class CustomException(Exception) :
     def __init__(self, code:str="custom error", default_message:str="custom error message", status_code = 400):
         self.code = code, self.default_message=default_message
  
-
+class InvalidTripUpdateException(ValidationException):
+    code = "INVALID_TRIP_UPDATE"
+    default_message = "The trip update is not allowed."
 
 # error response formater
 def error_response(error_title, error_message, status_code: int = 400):
