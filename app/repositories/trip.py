@@ -2,7 +2,7 @@ import logging
 from sqlalchemy.exc import SQLAlchemyError
 from app.errors import ApiException, TripNotFoundException
 from setup_sqlalchemy import sqlalchemy_db as db
-from app.models import Trip , Traveler , trip_traveler
+from app.models import Trip , Traveler , trip_traveler, Expense
 
 
 logger = logging.getLogger(__name__)
@@ -107,3 +107,14 @@ class TripRepository:
             logger.error(e)
             db.session.rollback()
             raise ApiException("Error deleting traveler to trip")
+
+    def create_expense(self, trip_id, expense_data) :
+        try :
+            created_expense = Expense(trip_id=trip_id,**expense_data.model_dump())
+            db.session.add(created_expense)
+            db.session.commit()
+            return created_expense
+        except SQLAlchemyError as e:
+            logger.error(e)
+            db.session.rollback()
+            raise ApiException("Error creating a expense to a trip")

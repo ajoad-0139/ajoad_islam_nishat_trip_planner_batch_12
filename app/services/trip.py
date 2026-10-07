@@ -1,6 +1,6 @@
 from app.repositories.trip import TripRepository
-from app.errors import TripNotFoundException, TravelerNotFoundException , InvalidTripUpdateException , TripLockedException
-from app.errors import TripNotPlannedException, TripFullException , DuplicateTravelerException, TravelerOverlapException, TravelerNotInTripException
+from app.errors import TripNotFoundException, TravelerNotFoundException , InvalidTripUpdateException , TripLockedException, TripNotAcceptingExpensesException
+from app.errors import TripNotPlannedException, TripFullException , DuplicateTravelerException, TravelerOverlapException, TravelerNotInTripException,BudgetExceededException
 from app.utils import has_overlapping_trip
 
 class TripService:
@@ -64,4 +64,16 @@ class TripService:
         if traveler not in trip.travelers:
             raise TravelerNotInTripException()
         return self.trip_repository.remove_a_traveler_from_a_trip(trip=trip, traveler=traveler)
-        
+
+    def create_a_expense_to_a_trip(self, trip_id, expense_data):
+        trip = self.trip_repository.get(trip_id=trip_id)
+        if trip is None:
+            raise TripNotFoundException()
+
+        if trip.status not in ("PLANNED", "ONGOING") :
+            raise TripNotAcceptingExpensesException()
+
+        if trip.remaining_budget<expense_data.amount:
+            raise BudgetExceededException()
+
+        return self.trip_repository.create_expense(trip_id=trip_id, expense_data=expense_data)

@@ -76,6 +76,14 @@ class ConflictException(ApiException):
     status_code = 409
     default_message = "The request conflicts with the current state."
 
+class TripNotAcceptingExpensesException(ConflictException):
+    code = "TRIP_NOT_ACCEPTING_EXPENSES"
+    default_message = "Expenses can only be added while the trip is PLANNED or ONGOING."
+
+class BudgetExceededException(ConflictException):
+    code = "BUDGET_EXCEEDED"
+    default_message = "The expense exceeds the remaining trip budget."
+
 class DuplicateTravelerException(ConflictException):
     code = "DUPLICATE_TRAVELER"
     default_message = "The traveler is already part of this trip."

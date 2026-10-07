@@ -1,8 +1,8 @@
 from flask import Blueprint, jsonify, request
-from app.schemas import TripCreate, TripUpdate, TravelerCreate
+from app.schemas import TripCreate, TripUpdate, TravelerCreate, ExpenseCreate
 from app.services.trip import TripService
 from app.repositories.trip import TripRepository
-from app.errors import InvalidJsonException , InvalidTripUpdateException
+from app.errors import InvalidJsonException , InvalidTripUpdateException, TripNotFoundException
 
 blueprint = Blueprint("trips", __name__) 
 
@@ -58,3 +58,20 @@ def create_a_trip_traveler(trip_id) :
 def remove_a_traveler_from_a_trip(trip_id, traveler_id) :
     trip_service.remove_a_traveler_from_a_trip(trip_id=trip_id, traveler_id=traveler_id)
     return jsonify({"message": "Traveler deleted successfully"}), 200
+
+
+#trip-summary routes 
+@blueprint.get("/<int:trip_id>/summary")
+def get_trip_summary(trip_id) :
+    trip = trip_service.get_a_trip(trip_id=trip_id)
+    if trip is None :
+        raise TripNotFoundException()
+    return jsonify(trip.to_summary_dict()), 200
+
+
+#trip-expenses routes 
+@blueprint.post("/<int:trip_id>/expenses")
+def create_a_expense_to_a_trip(trip_id):
+    validated_expense = ExpenseCreate.model_validate_json(request.get_data())
+    expense = trip_service.create_a_expense_to_a_trip(trip_id, validated_expense)
+    return jsonify(expense.to_dict()), 201
