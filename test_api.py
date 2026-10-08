@@ -13,13 +13,16 @@ TRIP = {
 
 
 @pytest.fixture()
-def client():
-
+def client(tmp_path):
     class TestConfig(Config):
         TESTING = True
-        SQLALCHEMY_DATABASE_URI = "sqlite:///test.db"
+        SQLALCHEMY_DATABASE_URI = f"sqlite:///{tmp_path / 'test.db'}"
 
-    return create_app(TestConfig).test_client()
+    app = create_app(TestConfig)
+    from setup_sqlalchemy import sqlalchemy_db
+    with app.app_context():
+        print("TEST DB:", sqlalchemy_db.engine.url)
+    return app.test_client()
 
 
 def make_trip(client):
