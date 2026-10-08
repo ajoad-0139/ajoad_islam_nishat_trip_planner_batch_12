@@ -32,8 +32,16 @@ cd ajoad_islam_nishat_trip_planner_batch_12
 
 1. Create (or reuse) a local virtual environment in `./venv`
 2. Install the dependencies from `requirements.txt`
-3. Create the SQLite database and tables if they do not exist
-4. Start the API on **http://127.0.0.1:5000**
+3. Run the automated tests (`test_api.py`) and print the result
+4. Create the SQLite database and tables if they do not exist
+5. Start the API on **http://127.0.0.1:5000**
+
+The tests always run before the server starts. If a test fails, a warning is printed and the server still starts, so the API stays usable. Two optional switches change this:
+
+| Command | Effect |
+|---|---|
+| `STRICT_TESTS=1 ./run.sh` | Stop and do not start the server if any test fails |
+| `SKIP_TESTS=1 ./run.sh` | Skip the tests and start the server immediately |
 
 If you get "Permission denied", run `chmod +x run.sh` once.
 
@@ -61,6 +69,22 @@ Optional environment variables:
 | `APP_ENV` | `production` | Set to `development` to enable Flask debug mode |
 | `LOG_LEVEL` | `INFO` | Logging level |
 | `SQLALCHEMY_DATABASE_URI` | `sqlite:///trip_planner.db` | Database location |
+
+## 4a. Run the Tests
+
+```bash
+source venv/bin/activate        # after ./run.sh or the manual setup above
+python -m pytest -v test_api.py
+```
+
+The tests use Flask's built-in test client with a temporary SQLite database, so they do not touch `instance/trip_planner.db`. They cover:
+
+| Endpoint | What is checked |
+|---|---|
+| `GET /health` | Returns 200 and `status: ok` |
+| `POST` / `GET /api/v1/trips` | Create and retrieve a trip; invalid dates are rejected (400) |
+| `POST /api/v1/trips/<id>/travelers` | Duplicate email (409), exact-full capacity and over-capacity (409) |
+| `POST /api/v1/trips/<id>/expenses` | An expense equal to the remaining budget succeeds; one above it fails (409) |
 
 ## 5. API Endpoints
 
@@ -247,7 +271,8 @@ Assumptions:
 .
 ├── run.sh                  # one-command start (venv + install + run)
 ├── run.py                  # application entry point
-├── requirements.txt        # pinned dependencies
+├── requirements.txt        # pinned dependencies (includes pytest)
+├── test_api.py             # automated API tests (run by run.sh)
 ├── README.md
 ├── .gitignore
 ├── config.py               # configuration (database URI, log level)
@@ -284,3 +309,4 @@ Tables: `trips`, `travelers`, `trip_traveler` (many-to-many link), `expenses`.
 - The trip list is not paginated.
 - There are no automated tests yet. Behavior was checked manually with Postman and curl.
 - `run.sh` needs a Bash shell. On Windows use Git Bash or WSL, or the manual run steps.
+- The automated tests cover only four endpoints (health, trips, travelers, expenses). Status transitions, the summary and the update rules were checked manually with Postman and curl.

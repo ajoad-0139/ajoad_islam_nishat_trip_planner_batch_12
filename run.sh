@@ -27,6 +27,21 @@ echo ">> Installing dependencies from requirements.txt"
 "${VENV_DIR}/bin/python" -m pip install --quiet --upgrade pip
 "${VENV_DIR}/bin/python" -m pip install --quiet -r requirements.txt
 
-# 3 + 4. Start the API (tables are initialised inside create_app)
+# 3. Run the tests (they use a temporary database, never the real one)
+if [ "${SKIP_TESTS:-0}" = "1" ]; then
+    echo ">> SKIP_TESTS=1, skipping tests"
+else
+    echo ">> Running tests"
+    if "${VENV_DIR}/bin/python" -m pytest -q test_api.py; then
+        echo ">> All tests passed"
+    elif [ "${STRICT_TESTS:-0}" = "1" ]; then
+        echo "ERROR: tests failed and STRICT_TESTS=1, server not started." >&2
+        exit 1
+    else
+        echo "WARNING: some tests failed, starting the server anyway." >&2
+    fi
+fi
+
+# 4. Start the API (tables are initialised inside create_app)
 echo ">> Starting Trip Planner API on http://127.0.0.1:5000"
 exec "${VENV_DIR}/bin/python" run.py
