@@ -5,7 +5,7 @@ from create_app import create_app
 app = create_app(Config)
 
 if __name__ == '__main__':
-    app_env = os.getenv('APP_ENV', 'development')
+    app_env = os.getenv('APP_ENV', 'production')
     port = os.getenv('PORT', 5000)
     debug = False
 

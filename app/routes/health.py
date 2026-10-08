@@ -7,4 +7,4 @@ blueprint = Blueprint("health", __name__)
 @blueprint.get('/health')
 def health():
     db.session.execute(text("SELECT 1"))
-    return jsonify({"status":"DB is up, App is healthy! "}),200
+    return jsonify({"status":"ok"}),200

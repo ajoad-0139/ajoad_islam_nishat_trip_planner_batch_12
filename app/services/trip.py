@@ -24,6 +24,15 @@ class TripService:
             raise InvalidTripUpdateException(
                 "max_travelers cannot be lower than the current traveler count."
             )
+        if updated_trip_data.budget < old_trip_data.total_expense:
+            raise BudgetExceededException(
+                "budget cannot be lower than the total expenses already recorded."
+            )
+        for traveler in old_trip_data.travelers:
+            if has_overlapping_trip( traveler, old_trip_data, updated_trip_data.start_date,updated_trip_data.end_date):
+                raise TravelerOverlapException(
+                    "traveler would overlap with another trip on the new dates."
+                )
         return self.trip_repository.update(trip_id=trip_id, data=updated_trip_data)
 
     def delete_a_trip(self, trip_id) :

@@ -10,12 +10,12 @@ trip_repository = TripRepository()
 trip_service = TripService(trip_repository)
 
 #basic trip crud routes 
-@blueprint.get("/")
+@blueprint.get("")
 def get_all_trips():
     trips = trip_service.get_all_trips()
     return jsonify([trip.to_dict() for trip in trips]), 200
 
-@blueprint.post("/")
+@blueprint.post("")
 def create_a_trip():
     validated_data = TripCreate.model_validate_json(request.get_data())
     trip = trip_service.create_a_trip(validated_data)
@@ -54,7 +54,7 @@ def create_a_trip_traveler(trip_id) :
     trip_traveler = trip_service.create_a_trip_traveler(trip_id=trip_id, data=validated_traveler)
     return jsonify(trip_traveler), 201
 
-@blueprint.delete("/<int:trip_id>/travelers/<int:traveler_id>/")
+@blueprint.delete("/<int:trip_id>/travelers/<int:traveler_id>")
 def remove_a_traveler_from_a_trip(trip_id, traveler_id) :
     trip_service.remove_a_traveler_from_a_trip(trip_id=trip_id, traveler_id=traveler_id)
     return jsonify({"message": "Traveler deleted successfully"}), 200
